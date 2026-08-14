@@ -11,6 +11,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include(urlpatterns_yasg)),
     path("ckeditor5/", include('django_ckeditor_5.urls')),
+    path('api/v1/auth/', include('apps.testapp.urls')),
 ]
 
 
