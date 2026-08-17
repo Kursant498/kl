@@ -9,7 +9,7 @@ router.register(r'lessons', LessonViewSet, basename='lesson')
 urlpatterns = [
     path("api/v1/", include(router.urls)),
 
-    path('api/v1/google-auth/', GoogleAuthView.as_view(), name='google_auth'),
-    path('api/v1/jwt/create/', CustomTokenObtainPairView.as_view(), name='create_token_pair'),
-    path('api/v1/jwt/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('google-auth/', GoogleAuthView.as_view(), name='google_auth'),
+    path('jwt/create/', CustomTokenObtainPairView.as_view(), name='create_token_pair'),
+    path('jwt/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

@@ -27,13 +27,17 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         return data
 
-class LessonSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Lesson
-        fields = ['id', 'title', 'content']
-
 class GoogleAuthSerializer(serializers.Serializer):
     code = serializers.CharField(
         required=True, 
         help_text="Одноразовый code, полученный фронтендом от Google"
     )
+
+class LessonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lesson
+        fields = ['id', 'title', 'description', 'views', 'data']
+        read_only_fields = ['views']
+
+    
+
