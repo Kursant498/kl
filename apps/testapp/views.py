@@ -16,15 +16,9 @@ from django.core.cache import cache
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
-
-class LessonViewSet(ModelViewSet):
-    queryset = Lesson.objects.all()
-    serializer_class = LessonSerializer
-    
-    permission_classes = [IsTeacherOrReadOnly]
-
 CACHE_KEY_LESSON_LIST = "lessons_list_cache"
-CACHE_TIMEOUT = 300  
+CACHE_TIMEOUT_LIST = 300  
+CACHE_TIMEOUT_DETAIL = 600
 
 class LessonViewSet(viewsets.ModelViewSet):
     queryset = Lesson.objects.all().order_by('-views')
@@ -41,7 +35,7 @@ class LessonViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         data_to_cache = serializer.data
         
-        cache.set(CACHE_KEY_LESSON_LIST, data_to_cache, CACHE_TIMEOUT)
+        cache.set(CACHE_KEY_LESSON_LIST, data_to_cache, CACHE_TIMEOUT_LIST)
         
         return Response(data_to_cache)
     
@@ -53,7 +47,7 @@ class LessonViewSet(viewsets.ModelViewSet):
 
         if cache.get(views_cache_key) is None:
             instance = self.get_object()
-            cache.set(views_cache_key, instance.views_count, timeout=None) 
+            cache.set(views_cache_key, instance.views, timeout=None) 
 
         actual_views = cache.incr(views_cache_key)
 
@@ -63,7 +57,7 @@ class LessonViewSet(viewsets.ModelViewSet):
             instance = locals().get('instance') or self.get_object()
             serializer = self.get_serializer(instance)
             cached_data = serializer.data
-            cache.set(lesson_cache_key, cached_data, CACHE_TIMEOUT)
+            cache.set(lesson_cache_key, cached_data, CACHE_TIMEOUT_DETAIL)
 
         cached_data['views_count'] = actual_views
         
@@ -74,13 +68,18 @@ class LessonViewSet(viewsets.ModelViewSet):
         
         cache.delete(CACHE_KEY_LESSON_LIST)
 
-    def perform_update(self, serializer):
+    def perform_update(self, serializer, instance):
         serializer.save()
         cache.delete(CACHE_KEY_LESSON_LIST)  
+        lesson_cache_key = f"lesson_detail_{instance.pk}"
+        cache.delete(lesson_cache_key)
 
     def perform_destroy(self, instance):
+        instance_id = instance.pk
         instance.delete()
-        cache.delete(CACHE_KEY_LESSON_LIST) 
+        cache.delete(CACHE_KEY_LESSON_LIST)         
+        lesson_cache_key = f"lesson_detail_{instance_id}"
+        cache.delete(lesson_cache_key)
 
 
 class GoogleAuthView(APIView):

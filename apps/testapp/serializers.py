@@ -36,7 +36,7 @@ class GoogleAuthSerializer(serializers.Serializer):
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
-        fields = ['id', 'title', 'description', 'views', 'data']
+        fields = ['id', 'title', 'description', 'views', 'created_at']
         read_only_fields = ['views']
 
     
